@@ -15,7 +15,7 @@ import Data.Text
 
 import Data.Default.Class (def)
 import Data.Function ((&))
-import Control.Lens ((.~), (.=), (%~), view)
+import Control.Lens ((.~), (.=), (%~), view, over)
 
 import System.IO
 import Control.Monad (unless)
@@ -73,9 +73,11 @@ repl = do
              -- | 1. add constant
              >-> P.map ((:&) <$>  const ((Field :: NewCol "f1") @Int 5) <*> id)
              -- | 2. add derived field
-             >-> P.map ((:&) <$> ((Field :: NewCol "f2") . (+1) . getField . view (rlens @Income) ) <*> id) 
-             -- | 3. keep field
-             >-> P.map (rcast @["f1" :-> Int, Education, Income])
+             >-> P.map ((:&) <$> ((Field :: NewCol "f2") . (+2) . getField . view (rlens @Income) ) <*> id)
+             -- | 3. modify field
+             >-> P.map (over (rlens @Income) (+1))
+             -- | 4. keep field
+             >-> P.map (rcast @["f1" :-> Int, "f2" :-> Int, Education, Income])
              >-> P.take 3
   mapM_ print rows'          
   putStrLn "finished"
